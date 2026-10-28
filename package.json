@@ -1,0 +1,13 @@
+{
+  "name": "flash-sale",
+  "version": "1.0.0",
+  "description": "High-concurrency Flash Sale System — zero overselling guarantee",
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "backend:init": "cd backend && node db/init.js",
+    "backend:dev": "cd backend && npm run dev",
+    "frontend:dev": "cd frontend && npm run dev",
+    "backend:reset": "cd backend && node db/reset.js",
+    "test:concurrency": "cd backend && node tests/test-concurrency.js"
+  }
+}
