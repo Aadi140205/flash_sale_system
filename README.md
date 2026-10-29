@@ -46,20 +46,20 @@ flowchart TD
     Users([100k Concurrent Users]) -->|Static Assets Cached| CDN[Cloudflare / Edge CDN]
     Users -->|HTTP POST /checkout| API[Stateless Express Ingress API]
 
-    subgraph Sync Ingress Path: < 15ms
+    subgraph Ingress ["Sync Ingress Path (under 15ms)"]
         API -->|1. Atomic Lua Script| Engine[(Redis / Atomic In-Memory Gate)]
-        Engine -- Stock == 0 --> SoldOut[410 Sold Out Response]
-        Engine -- Stock > 0: Decrement & Allocate --> Approved[202 Accepted + Order Token]
+        Engine -->|Stock is 0| SoldOut[410 Sold Out Response]
+        Engine -->|Stock Available: Decrement and Token| Approved[202 Accepted + Order Token]
     end
 
     Approved --> Users
     Users -.->|SSE Stream /sse/:orderId| API
 
-    subgraph Async Persistence Path: Controlled Concurrency
+    subgraph Persistence ["Async Persistence Path (Controlled Concurrency)"]
         Approved -->|2. Push Order Intent| Queue[Async FIFO Queue: Concurrency=5]
         Queue --> Consumer[Order Worker Pool]
         Consumer -->|3. ACID Conditional UPDATE| DB[(SQLite WAL / PostgreSQL)]
-        DB -->|4. Stock decremented WHERE stock > 0| DB
+        DB -->|4. Stock decremented in DB| DB
         Consumer -->|5. Mark Order COMPLETED| DB
     end
 ```
