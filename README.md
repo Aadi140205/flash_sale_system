@@ -169,6 +169,53 @@ To re-run the test after a first run:
 node db/reset.js          # Reset DB + Redis to 500 units
 node tests/test-concurrency.js
 ```
+## Interactive UI Walkthrough — How to Evaluate the Demo
+
+The web interface is structured into three dedicated cards for easy live evaluation:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 📱 STOREFRONT CARD                                         │
+│   • Countdown timer targeting sale launch                   │
+│   • Live Stock progress bar (decrements in real-time)       │
+│   • User ID input (1 - 1,000,000) with auto-focus           │
+│   • ⚡ Buy Now button (triggers on click or Enter key)       │
+│   • Real-time SSE order status card                         │
+├─────────────────────────────────────────────────────────────┤
+│ 📊 LIVE SYSTEM TELEMETRY CARD                              │
+│   • Cache Stock (fast memory) vs. SQLite DB Stock (disk)    │
+│   • Orders Completed vs. Queue Backlog                      │
+│   • 🔄 "Reset Sale" button (resets system back to 500)      │
+├─────────────────────────────────────────────────────────────┤
+│ 🚀 LIVE CONCURRENCY SURGE SIMULATOR CARD                    │
+│   • Presets: 100, 500, or 1,000 parallel buyers             │
+│   • "Fire Parallel Checkout Requests" benchmark button      │
+│   • Live report: Accepted, Sold Out, Duration, Req/Sec      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Test Case 1: Individual Checkout & Keyboard Enter Support
+1. In the **User ID** field, enter any number between `1` and `1000000` (e.g. `42`).
+2. Press **Enter** on your keyboard (or click **⚡ Buy Now**).
+3. The button locks immediately with a spinner $\rightarrow$ Order status card switches from `⏳ Order Queued` $\rightarrow$ `✅ Order Confirmed!` via Server-Sent Events.
+4. Watch the **Cache Stock** and **SQLite DB Stock** counters decrement from `500` to `499`.
+
+### Test Case 2: Anti-Sybil / Deduplication Protection
+1. With the same User ID (`42`), try clicking or pressing Enter again $\rightarrow$ Button disables and displays `Already Ordered`.
+2. Now type `000042` (with leading zeros) and press Enter $\rightarrow$ Rejected immediately with `Already Ordered` because `000042` canonicalizes to `42`.
+
+### Test Case 3: In-UI Concurrency Surge (Live Demonstration)
+1. In the **Live Concurrency Benchmark** card at the bottom, select **`1000 Users`**.
+2. Click **`🚀 Fire 1000 Parallel Checkout Requests`**.
+3. Watch the progress bar instantly drain to `0 / 500`.
+4. Review the live benchmark report:
+   * **Accepted (HTTP 202):** Exactly remaining stock (e.g., 498)
+   * **Sold Out (HTTP 410):** Exactly the surplus (e.g., 502)
+   * **Zero Overselling Banner:** Confirmed!
+
+### Test Case 4: One-Click Reset
+* Click **🔄 Reset Sale** in the Telemetry header (or visit `http://localhost:3001/api/flash-sale/reset` in a browser).
+* Memory cache and SQLite database immediately re-seed to 500 units and past orders are wiped.
 
 ---
 
