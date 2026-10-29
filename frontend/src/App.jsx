@@ -51,14 +51,9 @@ export default function App() {
     <div className="app">
       {/* Header Badge */}
       <div className="hero-badge">⚡ Enterprise Flash Sale System</div>
-      <h1 className="hero-title">Flagship Smartphone X1</h1>
+      <h1 className="hero-title">Flagship Smartphone GoML</h1>
       <p className="hero-sub">
         Strict 500-unit batch. High-concurrency zero-overselling demonstration.
-        {usingRedis !== null && (
-          <span className={`backend-badge ${usingRedis ? 'redis' : 'memory'}`}>
-            {usingRedis ? '🔴 Redis Cluster' : '💾 In-Memory Atomic Engine'}
-          </span>
-        )}
       </p>
 
       {/* Main Checkout Card */}
@@ -110,11 +105,11 @@ export default function App() {
                 <span style={{ color: '#ef4444' }}>⚠️ {validation.error}</span>
               ) : validation.normalized !== userId ? (
                 <span style={{ color: '#38bdf8' }}>
-                  ℹ️ Normalized ID: <strong>"{validation.normalized}"</strong> (range 1 - 1,000,000)
+                  
                 </span>
               ) : (
                 <span style={{ color: '#22c55e' }}>
-                  ✓ Valid User ID: <strong>{validation.normalized}</strong>
+                  
                 </span>
               )}
             </div>
